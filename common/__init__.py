@@ -4,6 +4,7 @@ from js.app_sign import get_sign
 from pprint import pprint
 import requests
 import json
+import time
 
 
 class Base:
@@ -143,10 +144,10 @@ class Base:
         if not response:
             return False
         for item in response:
-            yield {'评论时间': item['createTime'],
+            yield {'评论时间': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(item['createTime'])),
                    '评论': item['text'],
                    '评论回复': item['descendants'][0]['text'] if item['descendants'] else '',
-                   '评论回复时间': item['descendants'][0]['createTime'] if item['descendants'] else '',
+                   '评论回复时间': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(item['descendants'][0]['createTime'])) if item['descendants'] else '',
                    '评论图片url': item['images'][0] if item['images'] else '',
                    '用户ID': item['userInfo']['userId'],
                    '用户头像': item['userInfo']['userIcon'],
