@@ -1,4 +1,5 @@
 from urllib.parse import quote
+from urllib.parse import urlencode
 from js.app_sign import get_sign
 from pprint import pprint
 import requests
@@ -111,6 +112,8 @@ class Base:
 
         try:
             items = json.loads(self.session.get(url=url, headers=self.headers).text)['data']
+            if not items:
+                return False
             for item in items:
                 yield {'笔记': item['desc'],
                        '商品名字': item['title'],
@@ -121,6 +124,34 @@ class Base:
                        }
         except KeyError:
             return []
+
+    def comments(self, goods_id, page=0):
+        url = 'https://www.xiaohongshu.com/api/store/review/{}/product_review?'.format(goods_id)
+        params = {'page': page,
+                  'erPage': '10',
+                  'tab': '2',
+                  }
+        headers = {'accept': 'application/json, text/plain, */*',
+                   'user-agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 5 MIUI/V8.1.6.0.MAACNDI) '
+                                 'Resolution/1080*1920 Version/6.8.0.3 Build/6080103 Device/(Xiaomi;MI 5) NetType/WiFi',
+                   'netapm': 'true',
+                   'Host': 'www.xiaohongshu.com',
+                   'Connection': 'Keep-Alive',
+                   'Accept-Encoding': 'gzip'
+                   }
+        response = json.loads(self.session.get(url=url+urlencode(params), headers=headers).text)['data']['reviews']
+        if not response:
+            return False
+        for item in response:
+            yield {'评论时间': item['createTime'],
+                   '评论': item['text'],
+                   '评论回复': item['descendants'][0]['text'] if item['descendants'] else '',
+                   '评论回复时间': item['descendants'][0]['createTime'] if item['descendants'] else '',
+                   '评论图片url': item['images'][0] if item['images'] else '',
+                   '用户ID': item['userInfo']['userId'],
+                   '用户头像': item['userInfo']['userIcon'],
+                   '用户名字': item['userInfo']['userName'],
+                   '购买信息': item['variants'][0] if item['variants'] else ''}
 
     # 用户详情页
     def user(self, _id):
