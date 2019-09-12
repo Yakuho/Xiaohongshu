@@ -28,5 +28,9 @@ if __name__ == '__main__':
     # for item in data3:
     #     pprint(item)
 
-    note_detail_one = a.note_detail('5d54108b000000002701f3b2')
-    pprint(note_detail_one)
+    # note_detail_one = a.note_detail('5d54108b000000002701f3b2')
+    # pprint(note_detail_one)
+
+    comments = a.comments(goods_id='5d118cb243e55b002b2606b4', page=3)
+    for comment in comments:
+        pprint(comment)
